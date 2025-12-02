@@ -1,35 +1,54 @@
 // Build: go build secret_entrance.go
-// Run: ./secret_entrance --file test3-6
+// Run: ./secret_entrance
 package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
-var (
-	inputFile = flag.String("file", "", "input file to use")
-)
-
 func main() {
-	flag.Parse()
-	file, err := os.Open(*inputFile)
+	testsDir := "tests"
+
+	// Read all files in the tests directory
+	files, err := os.ReadDir(testsDir)
 	if err != nil {
-		fmt.Printf("Failed to open file: %v\n", *inputFile)
+		fmt.Printf("Failed to read tests directory: %v\n", err)
+		return
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	var input []string
-	for scanner.Scan() {
-		input = append(input, scanner.Text())
+
+	// Process each file
+	for _, fileInfo := range files {
+		filename := fileInfo.Name()
+		filepath := filepath.Join(testsDir, filename)
+
+		fmt.Printf("\n=== Processing %s ===\n", filename)
+
+		// Read the file
+		file, err := os.Open(filepath)
+		if err != nil {
+			fmt.Printf("Failed to open file %s: %v\n", filename, err)
+			continue
+		}
+
+		scanner := bufio.NewScanner(file)
+		var input []string
+		for scanner.Scan() {
+			input = append(input, scanner.Text())
+		}
+		file.Close()
+
+		if err := scanner.Err(); err != nil {
+			fmt.Printf("Error occurred during scanning %s: %v\n", filename, err)
+			continue
+		}
+
+		// Run secretEntrance on the input
+		secretEntrance(input)
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("Error occurred during scanning: %v\n", err)
-	}
-	secretEntrance(input)
 }
 
 func secretEntrance(input []string) {
