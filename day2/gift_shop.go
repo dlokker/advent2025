@@ -62,11 +62,16 @@ func main() {
 		}
 
 		// Run giftShop on the input
-		giftShop(input, expected)
+		if strings.Contains(filename, "p1") {
+			giftShopP1(input, expected)
+		} 
+		if strings.Contains(filename, "p2") {
+			giftShopP2(input, expected)
+		}
 	}
 }
 
-func giftShop(ranges []Range, expected int) {
+func giftShopP1(ranges []Range, expected int) {
 	var res int
 	for _, r := range ranges {
 		for i := r.start; i <= r.end; i++ {
@@ -82,5 +87,41 @@ func giftShop(ranges []Range, expected int) {
 	}
 
 	fmt.Printf("Expected: %d\n", expected)
-	fmt.Printf("     Got: %d\n", res)
+	fmt.Printf("  P1 Got: %d\n", res)
+}
+
+func giftShopP2(ranges []Range, expected int) {
+	var res int
+	for _, r := range ranges {
+		for i := r.start; i <= r.end; i++ {
+			s := strconv.Itoa(i)
+			if len(s) == 1 {
+				continue
+			}
+			// Build substrings up to half the length of s and check if that repeats
+			for j := 1; j <= len(s) / 2; j++ {
+				var found bool
+				// If the length of substring does not divide evenly into length of s, skip
+				if len(s)%len(s[:j]) != 0 {
+					continue
+				}
+				for k := len(s[:j]); k < len(s); k += len(s[:j]) {
+					if s[:j] != s[k:k+len(s[:j])] {
+						break
+					}
+					if k+len(s[:j]) == len(s) {
+						res += i
+						found = true
+						break
+					}
+				}
+				if found {
+					break
+				}
+			}
+		}
+	}
+
+	fmt.Printf("Expected: %d\n", expected)
+	fmt.Printf("  P2 Got: %d\n", res)
 }
