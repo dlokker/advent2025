@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -86,50 +85,27 @@ func printingDepartment1(input [][]byte, expected int) {
 
 func main() {
 	testsDir := "tests"
-
-	// Read all files in the tests directory
-	files, err := os.ReadDir(testsDir)
-	if err != nil {
-		fmt.Printf("Failed to read tests directory: %v\n", err)
-		return
-	}
-
-	// Process each file
+	files, _ := os.ReadDir(testsDir)
 	for _, fileInfo := range files {
 		filename := fileInfo.Name()
 		filepath := filepath.Join(testsDir, filename)
-
 		if !runInput && filename == "p1p2input" {
 			continue
 		}
-
-		fmt.Printf("\n=== Test Case: %s ===\n", filename)
-
-		// Read the file
-		file, err := os.Open(filepath)
-		if err != nil {
-			fmt.Printf("Failed to open file %s: %v\n", filename, err)
-			continue
-		}
-
-		scanner := bufio.NewScanner(file)
+		file, _ := os.ReadFile(filepath)
 		var input [][]byte
 		var expected int
-		for scanner.Scan() {
-			if scanner.Text()[:9] == "expected:" {
-				fmt.Sscanf(scanner.Text(), "expected: %d", &expected)
+		lines := strings.Split(string(file), "\n")
+		for _, line := range lines {
+			if len(line) >= 9 && line[:9] == "expected:" {
+				fmt.Sscanf(line, "expected: %d", &expected)
 				continue
 			}
-			input = append(input, []byte(scanner.Text()))
-		}
-		file.Close()
-
-		if err := scanner.Err(); err != nil {
-			fmt.Printf("Error occurred during scanning %s: %v\n", filename, err)
-			continue
+			input = append(input, []byte(line))
 		}
 
 		// Run stuff on the input
+		fmt.Printf("=== Test Case: %s ===\n", filename)
 		if strings.Contains(filename, "p1") {
 			printingDepartment1(input, expected)
 		} 
