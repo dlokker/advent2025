@@ -13,7 +13,7 @@ var (
 )
 
 func checkAdjacent(i, j int, input [][]byte) bool {
-	directions := [][2]int{
+	directions := [][]int{
 		{-1, 0},  // Up
 		{1, 0},   // Down
 		{0, -1},  // Left
@@ -36,9 +36,10 @@ func checkAdjacent(i, j int, input [][]byte) bool {
 }
 
 func printingDepartment2(input [][]byte, expected int) {
-	var res, total int
-	var purge [][]int
+	var total int
 	for {
+		var res int
+		var purge [][]int
 		for i, row := range input {
 			// fmt.Printf("%s\n", row)
 			for j, cell := range row {
@@ -53,12 +54,10 @@ func printingDepartment2(input [][]byte, expected int) {
 		for _, p := range purge {
 			input[p[0]][p[1]] = '.'
 		}
-		purge = [][]int{}
 		if res == 0 {
 			break
 		}
 		total += res
-		res = 0
 	}
 
 	fmt.Printf("Expected: %d\n", expected)
