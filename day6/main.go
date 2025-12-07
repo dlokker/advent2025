@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/golang-collections/collections/stack"
 )
 
 var (
-	runInput = false
+	runInput = true
 )
 
 func trashCompactor1(input [][]string, expected int) {
@@ -50,7 +52,61 @@ func trashCompactor1(input [][]string, expected int) {
 	fmt.Printf("      P1: %d\n", result)
 }
 
-func trashCompactor2(input [][]string, expected int) {
+func trashCompactor2(input [][]rune, expected int) {
+	horizontalSize := len(input[0])
+	verticalSize := len(input)
+	xformed := make([][]rune, horizontalSize)
+	for i := range xformed {
+		xformed[i] = make([]rune, verticalSize)
+	}
+	for row := range input {
+		for col := range input[row] {
+		    fmt.Printf("[%c]", input[row][col])
+			xformed[horizontalSize-col-1][row%verticalSize] = input[row][col]
+		}
+		fmt.Println()
+	}
+	for row := range xformed {
+		for col := range xformed[row] {
+		    fmt.Printf("(%c)", xformed[row][col])
+		}
+		fmt.Println()
+	}
+	var result int
+	s := stack.New()
+	for _, line := range xformed {
+		var num string
+		for i := 0; i < len(line)-1; i++ {
+			char := line[i]
+			if char == ' ' {
+				continue
+			}
+			num += string(char)
+		}
+		if num != "" {
+			n, _ := strconv.Atoi(num)
+			// fmt.Printf("  Pushing %d onto stack for line %v\n", n, line)
+			s.Push(n)
+		}
+		if line[len(line)-1] == '+' {
+			var total int
+			for s.Len() > 0 {
+				val := s.Pop().(int)
+				total += val
+			}
+			result += total
+		}
+		if line[len(line)-1] == '*' {
+			total := 1
+			for s.Len() > 0 {
+				val := s.Pop().(int)
+				total *= val
+			}
+			result += total
+		}
+	}
+	fmt.Printf("Expected: %d\n", expected)
+	fmt.Printf("      P2: %d\n", result)
 }
 
 func main() {
@@ -64,6 +120,7 @@ func main() {
 		}
 		file, _ := os.ReadFile(filepath)
 		var input [][]string
+		var input2 [][]rune
 		var expected int
 		lines := strings.Split(string(file), "\n")
 		for _, line := range lines {
@@ -80,6 +137,7 @@ func main() {
 				clean = append(clean, strings.TrimSpace(l[i]))
 			}
 			input = append(input, clean)
+			input2 = append(input2, []rune(line))
 		}
 
 		// Run stuff on the input
@@ -88,7 +146,7 @@ func main() {
 			trashCompactor1(input, expected)
 		} 
 		if strings.Contains(filename, "p2") {
-			trashCompactor2(input, expected)
+			trashCompactor2(input2, expected)
 		}
 	}
 }
