@@ -12,9 +12,6 @@ var (
 )
 
 func laboratories1(input [][]string, expected int) {
-	for _, line := range input {
-		fmt.Println(line)
-	}
 	tachyonManifolds := make(map[int]bool)
 	var result int
 	for i := 0; i < len(input); i++ {
@@ -38,7 +35,34 @@ func laboratories1(input [][]string, expected int) {
 	}
 	fmt.Printf("Expected: %d\n", expected)
 	fmt.Printf("      P1: %d\n", result)
+}
 
+func laboratories2(input [][]string, expected int) {
+	var result int
+	colValues := make([]int, len(input[0]))
+	for i := 0; i < len(input); i++ {
+		for j := 0; j < len(input[i]); j++ {
+			if input[i][j] == "S" {
+				colValues[j] = 1
+			}
+			if input[i][j] == "^" {
+				if colValues[j] > 0 {
+					if j > 0 {
+						colValues[j-1] += colValues[j]
+					}
+					if j < len(input[i])-1 {
+						colValues[j+1] += colValues[j]
+					}
+					colValues[j] = 0
+				}
+			}
+		}
+	}
+	for _, v := range colValues {
+		result += v
+	}
+	fmt.Printf("Expected: %d\n", expected)
+	fmt.Printf("      P2: %d\n", result)
 }
 
 func main() {
@@ -68,6 +92,7 @@ func main() {
 			laboratories1(input, expected)
 		} 
 		if strings.Contains(filename, "p2") {
+			laboratories2(input, expected)
 		}
 	}
 }
